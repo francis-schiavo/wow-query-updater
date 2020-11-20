@@ -33,9 +33,9 @@ func main() {
 	connections.WowClient = blizzard_api.NewWoWClient("us", connections.RedisClient, nil, *classic)
 	connections.WowClient.CreateAccessToken(config.ClientID, config.ClientSecret, "")
 
-	taskManager := updater.NewTaskManager(90, 12, updater.LT_WARNING)
+	taskManager := updater.NewTaskManager(90, 12, updater.LT_DEBUG)
 
-    //// Common
+	//// Common
 	//taskManager.AddIndexTask("playable race", "PlayableRaceIndex", "races", "PlayableRace", updater.UpdatePlayableRace)
 	//
 	//taskManager.AddIndexTask("power type", "PowerTypeIndex", "power_types", "PowerType", updater.UpdatePowerType)
@@ -67,6 +67,8 @@ func main() {
 		//
 		//// Items
 		//taskManager.AddRangeTask("item", 1, 180500, "Item", updater.UpdateItem)
+		//taskManager.AddSearchTask("items", "ItemSearch", "Item", updater.UpdateItem)
+		//
 		//
 		//// Creatures
 		//taskManager.AddRangeTask("creature", 1, 169668, "Creature", updater.UpdateCreature)
@@ -95,9 +97,9 @@ func main() {
 		//taskManager.AddMediaTask("achievement assets", &datasets.AchievementMedia{}, "AchievementMedia", updater.UpdateAchievementMedia)
 
 		// Quest
-		taskManager.AddIndexTaskLimited("quest category", "QuestCategoryIndex", "categories", "QuestCategory", updater.UpdateQuestCategory, 50)
-		taskManager.AddIndexTaskLimited("quest type", "QuestTypeIndex", "types", "QuestType", updater.UpdateQuestType, 50)
-		taskManager.AddIndexTaskLimited("quest area", "QuestAreaIndex", "areas", "QuestArea", updater.UpdateQuestArea, 50)
+		//taskManager.AddIndexTaskLimited("quest category", "QuestCategoryIndex", "categories", "QuestCategory", updater.UpdateQuestCategory, 50)
+		//taskManager.AddIndexTaskLimited("quest type", "QuestTypeIndex", "types", "QuestType", updater.UpdateQuestType, 50)
+		//taskManager.AddIndexTaskLimited("quest area", "QuestAreaIndex", "areas", "QuestArea", updater.UpdateQuestArea, 50)
 
 		//// Collections
 		//taskManager.AddIndexTask("mount", "MountIndex", "mounts", "Mount", updater.UpdateMount)
@@ -125,6 +127,7 @@ func main() {
 	//}
 
 	fmt.Printf("Classic mode: %v\n", *classic)
-
+	go taskManager.LogMonitor()
 	taskManager.Run()
+
 }

@@ -72,6 +72,26 @@ func (manager *TaskManager) AddIndexTaskLimited(name string, indexMethod string,
 	manager.taskList = append(manager.taskList, task)
 }
 
+func (manager *TaskManager) AddSearchTask(name string, indexMethod string, itemMethod string, updateCallback ItemCallback) {
+	task := &SearchTask{
+		Task:          Task{
+			Name:        name,
+			mux:         sync.Mutex{},
+			concurrency: manager.Concurrency,
+			delay:       manager.Delay,
+
+			start:       &manager.taskStart,
+			end:         &manager.taskEnd,
+			progress:    &manager.taskProgress,
+			logChan:     &manager.logChannel,
+		},
+		SearchMethod: indexMethod,
+		ItemMethod: itemMethod,
+		ItemCallback:  updateCallback,
+	}
+	manager.taskList = append(manager.taskList, task)
+}
+
 func (manager *TaskManager) AddRangeTask(name string, rangeStart int, rangeEnd int, itemMethod string, updateCallback ItemCallback) {
 	task := &RangeTask{
 		Task:          Task{
