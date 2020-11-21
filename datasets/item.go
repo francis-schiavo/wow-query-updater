@@ -1,85 +1,65 @@
 package datasets
 
 type ItemClass struct {
-	ID             int            `json:"class_id" pg:",pk,notnull,on_delete:RESTRICT,on_update:CASCADE,use_zero"`
+	ID             int            `json:"class_id" pg:",pk,use_zero"`
 	Name           LocalizedField `json:"name"`
 	ItemSubclasses Identifiables  `json:"item_subclasses" pg:"-"`
 }
 
 type ItemSubclass struct {
-	ID                     int `json:"subclass_id" pg:",pk,notnull,on_delete:RESTRICT,on_update:CASCADE,use_zero"`
-	ClassID                int `json:"class_id" pg:",pk,on_delete:RESTRICT,on_update:CASCADE,use_zero"`
-	Class                  *ItemClass
+	ID                     int            `json:"subclass_id" pg:",pk,use_zero"`
+	ClassID                int            `json:"class_id" pg:",pk,use_zero"`
+	Class                  *ItemClass     `pg:"rel:has-one"`
 	DisplayName            LocalizedField `json:"display_name"`
 	HideSubclassInTooltips bool           `json:"hide_subclass_in_tooltips"`
 }
 
-type ItemQuality struct {
-	ID   string         `json:"type" pg:",pk,notnull,on_delete:RESTRICT,on_update:CASCADE"`
-	Name LocalizedField `json:"name"`
-}
-
-type InventoryType struct {
-	ID   string         `json:"type" pg:",pk,notnull,on_delete:RESTRICT,on_update:CASCADE"`
-	Name LocalizedField `json:"name"`
-}
-
-type Binding struct {
-	ID   string         `json:"type" pg:",pk,notnull,on_delete:RESTRICT,on_update:CASCADE"`
-	Name LocalizedField `json:"name"`
-}
-
-type Stat struct {
-	ID   string         `json:"type" pg:",pk,notnull,on_delete:RESTRICT,on_update:CASCADE"`
-	Name LocalizedField `json:"name"`
-}
+type ItemQuality Enum
+type InventoryType Enum
+type Binding Enum
+type Stat Enum
 
 type Item struct {
 	Identifiable
 	Name                    LocalizedField `json:"name"`
-	NameDescription         *LocalizedDisplayString
-	Description             *LocalizedField `json:"description"`
-	QualityID               string          `pg:",on_delete:RESTRICT,on_update:CASCADE"`
-	Quality                 *ItemQuality    `json:"quality"`
-	BindingID               string          `pg:",on_delete:RESTRICT,on_update:CASCADE"`
-	Binding                 *Binding
-	Level                   int `json:"level"`
-	LevelDisplayString      *LocalizedField
+	NameDescription         LocalizedDisplayString
+	Description             LocalizedField `json:"description"`
+	QualityID               string         ``
+	Quality                 *ItemQuality   `json:"quality" pg:"rel:has-one"`
+	BindingID               string         ``
+	Binding                 *Binding       `pg:"rel:has-one"`
+	Level                   int            `json:"level"`
+	LevelDisplayString      LocalizedField
 	Armor                   int
-	ArmorDisplayString      *LocalizedDisplayString
+	ArmorDisplayString      LocalizedDisplayString
 	Durability              int
-	DurabilityDisplayString *LocalizedField
+	DurabilityDisplayString LocalizedField
 	Charges                 int
-	ChargesDisplayString    *LocalizedField
-	UniqueEquipped          *LocalizedField
+	ChargesDisplayString    LocalizedField
+	UniqueEquipped          LocalizedField
 	Context                 int
-	RequiredLevel           int `json:"required_level"`
-	ItemClassID             int `pg:",on_delete:RESTRICT,on_update:CASCADE,use_zero"`
-	ItemClass               *ItemClass
-	Class                   *struct {
-		ID   int            `json:"id"`
-		Name LocalizedField `json:"name"`
-	} `json:"item_class" pg:"-"`
-	ItemSubclassID int `pg:",on_delete:RESTRICT,on_update:CASCADE,use_zero"`
-	ItemSubclass   *ItemSubclass
-	Subclass       *struct {
-		ID   int            `json:"id"`
-		Name LocalizedField `json:"name"`
-	} `json:"item_subclass" pg:"-"`
-	InventoryTypeID string         `pg:",on_delete:RESTRICT,on_update:CASCADE"`
-	InventoryType   *InventoryType `json:"inventory_type"`
-	PurchasePrice   int            `json:"purchase_price"`
-	SellPrice       int            `json:"sell_price"`
-	MaxCount        int            `json:"max_count"`
-	IsEquippable    bool           `json:"is_equippable"`
-	IsStackable     bool           `json:"is_stackable"`
-	PreviewItem     *PreviewItem   `json:"preview_item"`
-	Media           *ItemMedia     `json:"media"`
+	RequiredLevel           int            `json:"required_level"`
+	ItemClassID             int            ``
+	ItemClass               *ItemClass     `pg:"rel:has-one"`
+	Class                   Identifiable   `json:"item_class" pg:"-"`
+	ItemSubclassID          int            ``
+	ItemSubclassClassID     int            ``
+	ItemSubclass            *ItemSubclass  `pg:"rel:has-one"`
+	Subclass                Identifiable   `json:"item_subclass" pg:"-"`
+	InventoryTypeID         string         ``
+	InventoryType           *InventoryType `json:"inventory_type" pg:"rel:has-one"`
+	PurchasePrice           int            `json:"purchase_price"`
+	SellPrice               int            `json:"sell_price"`
+	MaxCount                int            `json:"max_count"`
+	IsEquippable            bool           `json:"is_equippable"`
+	IsStackable             bool           `json:"is_stackable"`
+	PreviewItem             *PreviewItem   `json:"preview_item"`
+	Media                   *ItemMedia     `json:"media" pg:"-"`
 }
 
 type ItemMetadata struct {
-	ItemID      int `pg:",pk,on_delete:RESTRICT,on_update:CASCADE"`
-	Item        *Item
+	ItemID      int   `pg:",pk"`
+	Item        *Item `pg:"rel:has-one"`
 	IsToy       bool
 	IsRecipe    bool
 	IsReagent   bool
@@ -89,86 +69,86 @@ type ItemMetadata struct {
 }
 
 type ItemSpell struct {
-	ItemID       int `pg:",pk,on_delete:RESTRICT,on_update:CASCADE,use_zero"`
-	Item         *Item
-	SpellID      int `pg:",pk,on_delete:RESTRICT,on_update:CASCADE,use_zero"`
-	Spell        *Spell
+	ItemID       int            `pg:",pk"`
+	Item         *Item          `pg:"rel:has-one"`
+	SpellID      int            `pg:",pk"`
+	Spell        *Spell         `pg:"rel:has-one"`
 	Description  LocalizedField `json:"description"`
 	DisplayColor Color          `json:"display_color"`
 }
 
 type ItemLevelRequirement struct {
-	ItemID        int `pg:",pk,on_delete:RESTRICT,on_update:CASCADE,use_zero"`
-	Item          *Item
+	ItemID        int            `pg:",pk"`
+	Item          *Item          `pg:"rel:has-one"`
 	DisplayString LocalizedField `json:"display_string"`
 	Level         int            `json:"value"`
 }
 
 type ItemRaceRequirement struct {
-	ItemID         int `pg:",pk,on_delete:RESTRICT,on_update:CASCADE,use_zero"`
-	Item           *Item
+	ItemID         int            `pg:",pk"`
+	Item           *Item          `pg:"rel:has-one"`
 	DisplayString  LocalizedField `json:"display_string"`
-	PlayableRaceID int            `pg:",pk,on_delete:RESTRICT,on_update:CASCADE,use_zero"`
-	PlayableRace   *PlayableRace
+	PlayableRaceID int            ``
+	PlayableRace   *PlayableRace  `pg:"rel:has-one"`
 }
 
 type ItemClassRequirement struct {
-	ItemID          int `pg:",pk,on_delete:RESTRICT,on_update:CASCADE,use_zero"`
-	Item            *Item
+	ItemID          int            `pg:",pk"`
+	Item            *Item          `pg:"rel:has-one"`
 	DisplayString   LocalizedField `json:"display_string"`
-	PlayableClassID int            `pg:",pk,on_delete:RESTRICT,on_update:CASCADE,use_zero"`
-	PlayableClass   *PlayableClass
+	PlayableClassID int            ``
+	PlayableClass   *PlayableClass `pg:"rel:has-one"`
 }
 
 type ItemSpecializationRequirement struct {
-	ItemID                   int `pg:",pk,on_delete:RESTRICT,on_update:CASCADE,use_zero"`
-	Item                     *Item
-	DisplayString            LocalizedField `json:"display_string"`
-	PlayableSpecializationID int            `pg:",pk,on_delete:RESTRICT,on_update:CASCADE,use_zero"`
-	PlayableSpecialization   *PlayableSpecialization
+	ItemID                   int                     `pg:",pk"`
+	Item                     *Item                   `pg:"rel:has-one"`
+	DisplayString            LocalizedField          `json:"display_string"`
+	PlayableSpecializationID int                     `pg:",pk"`
+	PlayableSpecialization   *PlayableSpecialization `pg:"rel:has-one"`
 }
 
 type ItemFactionRequirement struct {
-	ItemID        int `pg:",pk,on_delete:RESTRICT,on_update:CASCADE,use_zero"`
-	Item          *Item
+	ItemID        int            `pg:",pk"`
+	Item          *Item          `pg:"rel:has-one"`
 	DisplayString LocalizedField `json:"display_string"`
-	FactionID     string         `pg:",on_delete:RESTRICT,on_update:CASCADE,use_zero"`
-	Faction       *Faction       `json:"value"`
+	FactionID     string         ``
+	Faction       *Faction       `json:"value" pg:"rel:has-one"`
 }
 
 type ItemReputationRequirement struct {
-	ItemID             int `pg:",pk,on_delete:RESTRICT,on_update:CASCADE,use_zero"`
-	Item               *Item
+	ItemID             int                `pg:",pk"`
+	Item               *Item              `pg:"rel:has-one"`
 	DisplayString      LocalizedField     `json:"display_string"`
-	FactionID          int                `pg:",on_delete:RESTRICT,on_update:CASCADE,use_zero"`
-	Faction            *ReputationFaction `json:"faction"`
+	FactionID          int                ``
+	Faction            *ReputationFaction `json:"faction" pg:"rel:has-one"`
 	MinReputationLevel int                `json:"min_reputation_level"`
 }
 
 type ItemSkillRequirement struct {
-	ItemID           int `pg:",pk,on_delete:RESTRICT,on_update:CASCADE,use_zero"`
-	Item             *Item
-	ProfessionID     int         `pg:",on_delete:RESTRICT,on_update:CASCADE"`
-	Profession       *Profession `json:"profession"`
-	ProfessionTierID int         `pg:",on_delete:RESTRICT,on_update:CASCADE"`
-	ProfessionTier   *ProfessionTier
-	DisplayString    LocalizedField `json:"display_string"`
-	Level            int            `json:"level"`
+	ItemID           int             `pg:",pk"`
+	Item             *Item           `pg:"rel:has-one"`
+	ProfessionID     int             ``
+	Profession       *Profession     `json:"profession" pg:"rel:has-one"`
+	ProfessionTierID int             ``
+	ProfessionTier   *ProfessionTier `pg:"rel:has-one"`
+	DisplayString    LocalizedField  `json:"display_string"`
+	Level            int             `json:"level"`
 }
 
 type ItemAbilityRequirement struct {
-	ItemID        int `pg:",pk,on_delete:RESTRICT,on_update:CASCADE,use_zero"`
-	Item          *Item
+	ItemID        int            `pg:",pk"`
+	Item          *Item          `pg:"rel:has-one"`
 	DisplayString LocalizedField `json:"display_string"`
-	SpellID       int            `pg:",on_delete:RESTRICT,on_update:CASCADE,use_zero"`
-	Spell         *Spell         `json:"spell"`
+	SpellID       int            ``
+	Spell         *Spell         `json:"spell" pg:"rel:has-one"`
 }
 
 type ItemStat struct {
-	ItemID       int `pg:",pk,on_delete:RESTRICT,on_update:CASCADE,use_zero"`
-	Item         *Item
-	StatID       string                 `pg:",pk,on_delete:RESTRICT,on_update:CASCADE,use_zero"`
-	Stat         *Stat                  `json:"type"`
+	ItemID       int                    `pg:",pk"`
+	Item         *Item                  `pg:"rel:has-one"`
+	StatID       string                 `pg:",pk"`
+	Stat         *Stat                  `json:"type" pg:"rel:has-one"`
 	Value        int                    `json:"value"`
 	Display      LocalizedDisplayString `json:"display"`
 	IsNegated    bool                   `json:"is_negated"`
@@ -387,8 +367,8 @@ type PreviewItem struct {
 
 type ItemMedia struct {
 	Identifiable
-	ItemID int `pg:",pk,on_delete:RESTRICT,on_update:CASCADE"`
-	Item   *Item
+	ItemID int          `pg:",pk"`
+	Item   *Item        `pg:"rel:has-one"`
 	Assets []ItemAssets `pg:"-"`
 }
 

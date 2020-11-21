@@ -94,3 +94,14 @@ type Asset struct {
 }
 
 type Assets []Asset
+
+// Generic named items
+type NamedItem struct {
+	Identifiable
+	Name LocalizedField `json:"name"`
+}
+
+type Enum struct {
+	ID   string         `json:"type" pg:",pk,notnull,on_delete:RESTRICT,on_update:CASCADE"`
+	Name LocalizedField `json:"name"`
+}

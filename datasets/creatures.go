@@ -3,49 +3,46 @@ package datasets
 type CreatureFamily struct {
 	Identifiable
 	Name                     LocalizedField          `json:"name"`
-	PlayableSpecializationID int                     `pg:",on_delete:RESTRICT,on_update:CASCADE"`
-	PlayableSpecialization   *PlayableSpecialization `json:"specialization"`
+	PlayableSpecializationID int                     ``
+	PlayableSpecialization   *PlayableSpecialization `json:"specialization" pg:"rel:has-one"`
 	Media                    *CreatureFamilyMedia    `pg:"-"`
 }
 
 type CreatureFamilyMedia struct {
 	Identifiable
-	CreatureFamilyID int                    `pg:",on_delete:RESTRICT,on_update:CASCADE"`
-	CreatureFamily   *CreatureFamily
+	CreatureFamilyID int                    ``
+	CreatureFamily   *CreatureFamily        `pg:"rel:has-one"`
 	Assets           []CreatureFamilyAssets `pg:"-"`
 }
 
 type CreatureFamilyAssets struct {
-	CreatureFamilyMediaID int `pg:",pk,on_delete:RESTRICT,on_update:CASCADE"`
-	CreatureFamilyMedia   *CreatureFamilyMedia
+	CreatureFamilyMediaID int                  ``
+	CreatureFamilyMedia   *CreatureFamilyMedia `pg:"rel:has-one"`
 	Asset
 }
 
-type CreatureType struct {
-	Identifiable
-	Name LocalizedField `json:"name"`
-}
+type CreatureType NamedItem
 
 type Creature struct {
 	Identifiable
-	Name       LocalizedField        `json:"name"`
-	TypeID     int                   `pg:",on_delete:RESTRICT,on_update:CASCADE"`
-	Type       *CreatureType         `json:"type"`
-	FamilyID   int                   `pg:",on_delete:RESTRICT,on_update:CASCADE"`
-	Family     *CreatureFamily       `json:"family"`
-	Media      []CreatureDisplayMedia `json:"creature_displays" pg:"-"`
-	IsTameable bool                  `json:"is_tameable"`
+	Name       LocalizedField  `json:"name"`
+	TypeID     int             ``
+	Type       *CreatureType   `json:"type" pg:"rel:has-one"`
+	FamilyID   int             ``
+	Family     *CreatureFamily `json:"family" pg:"rel:has-one"`
+	Media      Identifiables   `json:"creature_displays" pg:"-"`
+	IsTameable bool            `json:"is_tameable"`
 }
 
 type CreatureDisplayMedia struct {
 	Identifiable
-	CreatureID int `pg:",on_delete:RESTRICT,on_update:CASCADE"`
-	Creature   *Creature
+	CreatureID int                     ``
+	Creature   *Creature               `pg:"rel:has-one"`
 	Assets     []CreatureDisplayAssets `pg:"-"`
 }
 
 type CreatureDisplayAssets struct {
-	CreatureDisplayMediaID int `pg:",pk,on_delete:RESTRICT,on_update:CASCADE"`
-	CreatureDisplayMedia   *CreatureDisplayMedia
+	CreatureDisplayMediaID int                   ``
+	CreatureDisplayMedia   *CreatureDisplayMedia `pg:"rel:has-one"`
 	Asset
 }

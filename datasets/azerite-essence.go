@@ -1,5 +1,15 @@
 package datasets
 
+type AzeritePower struct {
+	Identifiable
+	Rank                int    `json:"rank"`
+	MainPowerSpellID    int    ``
+	MainPowerSpell      *Spell `json:"main_power_spell" pg:"rel:has-one"`
+	PassivePowerSpellID int    ``
+	PassivePowerSpell   *Spell `json:"passive_power_spell" pg:"rel:has-one"`
+}
+type AzeritePowers []AzeritePower
+
 type AzeriteEssence struct {
 	Identifiable
 	Name                   LocalizedField       `json:"name"`
@@ -8,40 +18,30 @@ type AzeriteEssence struct {
 	Media                  *AzeriteEssenceMedia `pg:"-"`
 }
 
-type AzeritePower struct {
-	Identifiable
-	Rank                int    `json:"rank"`
-	MainPowerSpellID    int    `pg:"on_delete:RESTRICT,on_update:CASCADE"`
-	MainPowerSpell      *Spell `json:"main_power_spell"`
-	PassivePowerSpellID int    `pg:"on_delete:RESTRICT,on_update:CASCADE"`
-	PassivePowerSpell   *Spell `json:"passive_power_spell"`
-}
-type AzeritePowers []AzeritePower
-
 type AzeriteEssencePower struct {
-	AzeriteEssenceID int `pg:",pk"`
-	AzeriteEssence   *AzeriteEssence
-	AzeritePowerID   int `pg:",pk"`
-	AzeritePower     *AzeritePower
+	AzeriteEssenceID int             `pg:",pk"`
+	AzeriteEssence   *AzeriteEssence `pg:"rel:has-one"`
+	AzeritePowerID   int             `pg:",pk"`
+	AzeritePower     *AzeritePower   `pg:"rel:has-one"`
 }
 
 type AzeriteEssenceSpecializations struct {
-	AzeriteEssenceID         int `pg:",pk"`
-	AzeriteEssence           *AzeriteEssence
-	PlayableSpecializationID int `pg:",pk"`
-	PlayableSpecialization   *PlayableSpecialization
+	AzeriteEssenceID         int                     `pg:",pk"`
+	AzeriteEssence           *AzeriteEssence         `pg:"rel:has-one"`
+	PlayableSpecializationID int                     `pg:",pk"`
+	PlayableSpecialization   *PlayableSpecialization `pg:"rel:has-one"`
 }
 
 type AzeriteEssenceMedia struct {
 	SelfReference
 	Identifiable
-	AzeriteEssenceID int `pg:",on_delete:RESTRICT,on_update:CASCADE"`
-	AzeriteEssence   *AzeriteEssence
+	AzeriteEssenceID int                   ``
+	AzeriteEssence   *AzeriteEssence       `pg:"rel:has-one"`
 	Assets           []AzeriteEssenceAsset `pg:"-"`
 }
 
 type AzeriteEssenceAsset struct {
-	AzeriteEssenceMediaID int `pg:",pk"`
-	AzeriteEssenceMedia   *AzeriteEssenceMedia
+	AzeriteEssenceMediaID int                  ``
+	AzeriteEssenceMedia   *AzeriteEssenceMedia `pg:"rel:has-one"`
 	Asset
 }

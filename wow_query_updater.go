@@ -2,11 +2,7 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"github.com/francis-schiavo/blizzard-api-go"
-	"github.com/go-redis/redis"
 	"wow-query-updater/connections"
-	"wow-query-updater/updater"
 )
 
 func main() {
@@ -24,16 +20,16 @@ func main() {
 	connections.Connect(config.Username, config.Password, config.Database, 105, schema)
 	connections.DatabaseSetup(*classic)
 
-	connections.RedisClient = redis.NewClient(&redis.Options{
-		Addr:     config.RedisHost,
-		PoolSize: 100,
-		DB:       config.RedisDB,
-	})
-
-	connections.WowClient = blizzard_api.NewWoWClient("us", connections.RedisClient, nil, *classic)
-	connections.WowClient.CreateAccessToken(config.ClientID, config.ClientSecret, "")
-
-	taskManager := updater.NewTaskManager(90, 12, updater.LT_DEBUG)
+	//connections.RedisClient = redis.NewClient(&redis.Options{
+	//	Addr:     config.RedisHost,
+	//	PoolSize: 100,
+	//	DB:       config.RedisDB,
+	//})
+	//
+	//connections.WowClient = blizzard_api.NewWoWClient("us", connections.RedisClient, nil, *classic)
+	//connections.WowClient.CreateAccessToken(config.ClientID, config.ClientSecret, "")
+	//
+	//taskManager := updater.NewTaskManager(90, 12, updater.LT_DEBUG)
 
 	//// Common
 	//taskManager.AddIndexTask("playable race", "PlayableRaceIndex", "races", "PlayableRace", updater.UpdatePlayableRace)
@@ -126,8 +122,8 @@ func main() {
 	//	taskManager.AddMediaTask("spell media", &datasets.SpellMedia{}, "SpellMedia", updater.UpdateSpellMedia)
 	//}
 
-	fmt.Printf("Classic mode: %v\n", *classic)
-	go taskManager.LogMonitor()
-	taskManager.Run()
+	//fmt.Printf("Classic mode: %v\n", *classic)
+	//go taskManager.LogMonitor()
+	//taskManager.Run()
 
 }

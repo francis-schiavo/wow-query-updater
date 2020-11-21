@@ -7,17 +7,27 @@ import (
 
 func DatabaseSetup(classic bool) {
 	createTable(&datasets.UpdateError{})
+	// Enums / simple references
 	createTable(&datasets.Faction{})
+	createTable(&datasets.Operator{})
+	createTable(&datasets.Role{})
+	createTable(&datasets.Source{})
+	createTable(&datasets.Binding{})
+	createTable(&datasets.InventoryType{})
+	createTable(&datasets.ItemQuality{})
+	createTable(&datasets.Stat{})
+	createTable(&datasets.Currency{})
+	createTable(&datasets.Follower{})
 
-	createTable(&datasets.PlayableRace{})
+	// Character related
 	createTable(&datasets.PowerType{})
+	createTable(&datasets.PlayableRace{})
 	createTable(&datasets.PlayableClass{})
 	createTable(&datasets.PlayableClassMedia{})
 	createTable(&datasets.PlayableClassAssets{})
-	createTable(&datasets.Role{})
-	createTable(&datasets.Binding{})
 	createTable(&datasets.PlayableSpecialization{})
 
+	// Creatures
 	createTable(&datasets.CreatureFamily{})
 	createTable(&datasets.CreatureFamilyMedia{})
 	createTable(&datasets.CreatureFamilyAssets{})
@@ -28,8 +38,7 @@ func DatabaseSetup(classic bool) {
 
 	createTable(&datasets.ItemClass{})
 	createTable(&datasets.ItemSubclass{})
-	createTable(&datasets.InventoryType{})
-	createTable(&datasets.ItemQuality{})
+
 	createTable(&datasets.Item{})
 	createTable(&datasets.ItemMedia{})
 	createTable(&datasets.ItemAssets{})
@@ -41,11 +50,14 @@ func DatabaseSetup(classic bool) {
 		createTable(&datasets.ProfessionCategory{})
 
 		createTable(&datasets.Spell{})
+		createTable(&datasets.SpellTooltip{})
+		createTable(&datasets.SpellMedia{})
+		createTable(&datasets.SpellAssets{})
 
 		createTable(&datasets.ReputationTier{})
 		createTable(&datasets.ReputationFaction{})
 
-		createTable(&datasets.Stat{})
+
 		createTable(&datasets.ItemStat{})
 		createTable(&datasets.ItemFactionRequirement{})
 		createTable(&datasets.ItemRaceRequirement{})
@@ -62,9 +74,6 @@ func DatabaseSetup(classic bool) {
 		createTable(&datasets.PlayableSpecializationMedia{})
 		createTable(&datasets.PlayableSpecializationAsset{})
 
-		createTable(&datasets.SpellMedia{})
-		createTable(&datasets.SpellAssets{})
-
 		createTable(&datasets.AzeriteEssence{})
 		createTable(&datasets.AzeritePower{})
 		createTable(&datasets.AzeriteEssencePower{})
@@ -79,7 +88,7 @@ func DatabaseSetup(classic bool) {
 		createTable(&datasets.Achievement{})
 		createTable(&datasets.AchievementMedia{})
 		createTable(&datasets.AchievementAssets{})
-		createTable(&datasets.CriteriaOperator{})
+
 		createTable(&datasets.Criteria{})
 	    createTable(&datasets.AchievementCriteria{})
 		createTable(&datasets.GuildRewardItems{})
@@ -97,16 +106,19 @@ func DatabaseSetup(classic bool) {
 		createTable(&datasets.Quest{})
 		createTable(&datasets.QuestReward{})
 		createTable(&datasets.QuestReputationReward{})
+		createTable(&datasets.QuestItemReward{})
+		createTable(&datasets.QuestItemChoiceReward{})
+		createTable(&datasets.QuestFollowerReward{})
+		createTable(&datasets.QuestCurrencyReward{})
+		createTable(&datasets.QuestRequirement{})
 		createTable(&datasets.QuestClassRequirement{})
 		createTable(&datasets.QuestRaceRequirement{})
 		createTable(&datasets.QuestReputationRequirement{})
-
 
 		createTable(&datasets.Recipe{})
 		createTable(&datasets.RecipeReagents{})
 		createTable(&datasets.RecipeMedia{})
 		createTable(&datasets.RecipeAssets{})
-
 
 		createTable(&datasets.ProfessionTierRecipes{})
 		createTable(&datasets.ProfessionMedia{})
@@ -132,11 +144,23 @@ func DatabaseSetup(classic bool) {
 		createTable(&datasets.BattlePetAbility{})
 		createTable(&datasets.Pet{})
 		createTable(&datasets.PetAbility{})
+
+		createTable(&datasets.TechTalentTree{})
+		createTable(&datasets.TechTalent{})
+		createTable(&datasets.TechTalentMedia{})
+		createTable(&datasets.TechTalentAssets{})
+
+		createTable(&datasets.Conduit{})
+		createTable(&datasets.ConduitRank{})
+
+		createTable(&datasets.Covenant{})
+		createTable(&datasets.CovenantAbility{})
+		createTable(&datasets.Soulbind{})
 	}
 }
 
 func createTable(model interface{}) {
-	err := GetDBConn().CreateTable(model, &orm.CreateTableOptions{
+	err := GetDBConn().Model(model).CreateTable(&orm.CreateTableOptions{
 		IfNotExists:   true,
 		FKConstraints: true,
 	})

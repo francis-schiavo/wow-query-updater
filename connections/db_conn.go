@@ -29,7 +29,7 @@ func Connect(username string, password string, db string, poolSize int, schema s
 		Password: password,
 		Database: db,
 		PoolSize: poolSize,
-		OnConnect: func(conn *pg.Conn) error {
+		OnConnect: func(ctx context.Context, conn *pg.Conn) error {
 			_, err := conn.Exec(createSchemaStatement)
 			if err != nil {
 				log.Fatal(err)

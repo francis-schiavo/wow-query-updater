@@ -1,84 +1,80 @@
 package datasets
 
-type ProfessionType struct {
-	ID   string         `json:"type" pg:",pk"`
-	Name LocalizedField `json:"name"`
-}
+type ProfessionType Enum
 
 type Profession struct {
 	Identifiable
-	Name        LocalizedField   `json:"name"`
-	Description LocalizedField   `json:"description"`
-	TypeID      string           `pg:",on_delete:RESTRICT,on_update:CASCADE"`
-	Type        *ProfessionType  `json:"type"`
-	SkillTiers  Identifiables    `json:"skill_tiers"`
-	Media       *ProfessionMedia `json:"media" pg:"-"`
+	Name        LocalizedField  `json:"name"`
+	Description LocalizedField  `json:"description"`
+	TypeID      string          ``
+	Type        *ProfessionType `json:"type" pg:"rel:has-one"`
+	SkillTiers  Identifiables   `json:"skill_tiers" pg:"-"`
 }
 
 type ProfessionTier struct {
 	Identifiable
-	Name              LocalizedField       `json:"name"`
-	MinimumSkillLevel int                  `json:"minimum_skill_level"`
-	MaximumSkillLevel int                  `json:"maximum_skill_level"`
-	Categories        []ProfessionCategory `json:"categories"`
+	Name              LocalizedField `json:"name"`
+	MinimumSkillLevel int            `json:"minimum_skill_level"`
+	MaximumSkillLevel int            `json:"maximum_skill_level"`
+	Categories        Identifiables  `json:"categories" pg:"-"`
 }
 
 type ProfessionCategory struct {
 	Identifiable
-	TierID         int `pg:",on_delete:RESTRICT,on_update:CASCADE"`
-	Tier *ProfessionTier
-	Name           LocalizedField `json:"name"`
-	Recipes        []Recipe       `json:"recipes" pg:"-"`
+	TierID  int             ``
+	Tier    *ProfessionTier `pg:"rel:has-one"`
+	Name    LocalizedField  `json:"name"`
+	Recipes Identifiable    `json:"recipes" pg:"-"`
 }
 
 type ProfessionTierRecipes struct {
-	ProfessionTierID int `pg:",pk,on_delete:RESTRICT,on_update:CASCADE"`
-	ProfessionTier   *ProfessionTier
-	RecipeID         int `pg:",pk,on_delete:RESTRICT,on_update:CASCADE"`
-	Recipe           *Recipe
-	CategoryID       int `pg:",on_delete:RESTRICT,on_update:CASCADE"`
-	Category         *ProfessionCategory
+	ProfessionTierID int                 `pg:",pk"`
+	ProfessionTier   *ProfessionTier     `pg:"rel:has-one"`
+	RecipeID         int                 `pg:",pk"`
+	Recipe           *Recipe             `pg:"rel:has-one"`
+	CategoryID       int                 ``
+	Category         *ProfessionCategory `pg:"rel:has-one"`
 }
 
 type ProfessionMedia struct {
 	Identifiable
-	ProfessionID int `pg:",on_delete:RESTRICT,on_update:CASCADE"`
-	Profession   *Profession
+	ProfessionID int                ``
+	Profession   *Profession        `pg:"rel:has-one"`
 	Assets       []ProfessionAssets `pg:"-"`
 }
 
 type ProfessionAssets struct {
-	ProfessionMediaID int `pg:",pk,on_delete:RESTRICT,on_update:CASCADE"`
-	ProfessionMedia   *ProfessionMedia
+	ProfessionMediaID int              `pg:",pk"`
+	ProfessionMedia   *ProfessionMedia `pg:"rel:has-one"`
 	Asset
 }
 
 type Recipe struct {
 	Identifiable
-	Name          LocalizedField `json:"name"`
-	CraftedItemID int
-	CraftedItem   *Item            `json:"crafted_item"`
+	Name          LocalizedField   `json:"name"`
+	CraftedItemID int              ``
+	CraftedItem   *Item            `json:"crafted_item" pg:"rel:has-one"`
 	Reagents      []RecipeReagents `json:"reagents" pg:"-"`
 	Media         *RecipeMedia     `json:"media" pg:"-"`
 }
 
 type RecipeReagents struct {
-	RecipeID  int `pg:",pk,on_delete:RESTRICT,on_update:CASCADE"`
-	Recipe    *Recipe
-	ReagentID int   `pg:",pk,on_delete:RESTRICT,on_update:CASCADE"`
-	Reagent   *Item `json:"reagent"`
-	Quantity  int   `json:"quantity"`
+	RecipeID  int     `pg:",pk"`
+	Recipe    *Recipe `pg:"rel:has-one"`
+	ReagentID int     `pg:",pk"`
+	Reagent   *Item   `json:"reagent" pg:"rel:has-one"`
+	Quantity  int     `json:"quantity"`
 }
 
 type RecipeMedia struct {
 	Identifiable
-	RecipeID int `pg:",on_delete:RESTRICT,on_update:CASCADE"`
-	Recipe   *Recipe
+	RecipeID int            ``
+	Recipe   *Recipe        `pg:"rel:has-one"`
 	Assets   []RecipeAssets `pg:"-"`
 }
 
 type RecipeAssets struct {
-	RecipeMediaID int `pg:",pk,on_delete:RESTRICT,on_update:CASCADE"`
-	RecipeMedia   *RecipeMedia
+	RecipeMediaID int          `pg:",pk"`
+	RecipeMedia   *RecipeMedia `pg:"rel:has-one"`
 	Asset
 }
