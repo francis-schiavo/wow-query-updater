@@ -35,11 +35,13 @@ func updateItemProfessionRequirement(item *datasets.Item) {
 	}
 	err := connections.GetDBConn().Model(profession).WherePK().Select()
 	if err != nil {
-		connections.GetDBConn().Model(&datasets.UpdateError{
-			Endpoint: "Item profession requirement",
-			RecordID: item.ID,
-			Error:    fmt.Sprintf("Item %d: references unknown profession %d.", item.ID, profession.ID),
-		}).Insert()
+		if connections.ReportingMode {
+			connections.GetDBConn().Model(&datasets.UpdateError{
+				Endpoint: "Item profession requirement",
+				RecordID: item.ID,
+				Error:    fmt.Sprintf("Item %d: references unknown profession %d.", item.ID, profession.ID),
+			}).Insert()
+		}
 	} else {
 		p_id = profession.ID
 	}
@@ -52,11 +54,13 @@ func updateItemProfessionRequirement(item *datasets.Item) {
 		}
 		err2 := connections.GetDBConn().Model(professionTier).WherePK().Select()
 		if err2 != nil {
-			connections.GetDBConn().Model(&datasets.UpdateError{
-				Endpoint: "Item profession requirement",
-				RecordID: item.ID,
-				Error:    fmt.Sprintf("Item %d: references skill-tier %d not found.", item.ID, professionTier.ID),
-			}).Insert()
+			if connections.ReportingMode {
+				connections.GetDBConn().Model(&datasets.UpdateError{
+					Endpoint: "Item profession requirement",
+					RecordID: item.ID,
+					Error:    fmt.Sprintf("Item %d: references skill-tier %d not found.", item.ID, professionTier.ID),
+				}).Insert()
+			}
 		} else {
 			p_id = professionTier.ProfessionID
 			p_t_id = professionTier.ID
@@ -73,11 +77,13 @@ func updateItemProfessionRequirement(item *datasets.Item) {
 		}
 		insertOnceExpr(&skill, "(item_id) DO UPDATE", "profession_id", "profession_tier_id", "display_string", "level")
 	} else {
-		connections.GetDBConn().Model(&datasets.UpdateError{
-			Endpoint: "Item profession requirement",
-			RecordID: item.ID,
-			Error:    fmt.Sprintf("Item %d: references invalid profession or skill-tier %d.", item.ID, item.PreviewItem.Requirements.Skill.Profession.GetID()),
-		}).Insert()
+		if connections.ReportingMode {
+			connections.GetDBConn().Model(&datasets.UpdateError{
+				Endpoint: "Item profession requirement",
+				RecordID: item.ID,
+				Error:    fmt.Sprintf("Item %d: references invalid profession or skill-tier %d.", item.ID, item.PreviewItem.Requirements.Skill.Profession.GetID()),
+			}).Insert()
+		}
 	}
 }
 
@@ -95,17 +101,6 @@ func UpdateItem(data *blizzard_api.ApiResponse) {
 		insertOnce(item.Quality)
 	}
 
-	if item.Class.ID == 10 {
-		insertOnce(&datasets.ItemClass{
-			ID:             10,
-			Name:           item.Class.Name,
-		})
-		insertOnceExpr(&datasets.ItemSubclass{
-			ID:          item.Subclass.ID,
-			ClassID:     10,
-			DisplayName: item.Subclass.Name,
-		}, "(id,class_id) DO NOTHING")
-	}
 	item.ItemClassID = item.Class.ID
 	item.ItemSubclassClassID = item.Class.ID
 	item.ItemSubclassID = item.Subclass.ID
@@ -155,7 +150,7 @@ func UpdateItem(data *blizzard_api.ApiResponse) {
 
 	if item.Media != nil {
 		item.Media.ItemID = item.ID
-		insertOnceExpr(item.Media, "(id,item_id) DO NOTHING")
+		insertOnce(item.Media)
 	}
 
 	if item.PreviewItem.Requirements.Faction != nil {
@@ -241,13 +236,18 @@ func UpdateItem(data *blizzard_api.ApiResponse) {
 	if item.PreviewItem.Stats != nil {
 		for _, stat := range item.PreviewItem.Stats {
 			if stat.Stat == nil {
-				db := connections.GetDBConn()
-				db.Model(&datasets.UpdateError{
-					Endpoint: "Item Stat",
-					RecordID: item.ID,
-					Error:    fmt.Sprintf("Stat type '%s' not found.", stat.Display.DisplayString.EnUS),
-				}).Insert()
-				continue
+				if connections.ReportingMode {
+					db := connections.GetDBConn()
+					db.Model(&datasets.UpdateError{
+						Endpoint: "Item Stat",
+						RecordID: item.ID,
+						Error:    fmt.Sprintf("Stat type '%s' not found.", stat.Display.DisplayString.EnUS),
+					}).Insert()
+				}
+				stat.Stat = &datasets.Stat{
+					ID: "ALL_RESISTANCE",
+				}
+				stat.StatID = "ALL_RESISTANCE"
 			}
 			insertOnce(stat.Stat)
 

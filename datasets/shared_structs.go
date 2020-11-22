@@ -96,7 +96,7 @@ type Media struct {
 }
 
 type Asset struct {
-	Key   string `json:"key" pg:",pk,notnull,on_delete:RESTRICT, on_update: CASCADE"`
+	Key   string `json:"key" pg:",pk,notnull"`
 	Value string `json:"value"`
 }
 
@@ -118,6 +118,7 @@ type Role Enum
 type Source Enum
 type Operator Enum
 type Currency NamedItem
+type Follower NamedItem
 
 type SearchResultData struct {
 	Data struct{

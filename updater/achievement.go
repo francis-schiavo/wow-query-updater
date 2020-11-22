@@ -17,7 +17,7 @@ func UpdateAchievementCategory(data *blizzard_api.ApiResponse) {
 		achievementCategory.HordePoints = achievementCategory.AggregatesByFaction.Horde.Points
 	}
 
-	insertOnceUpdate(&achievementCategory, "name", "is_guild_category", "display_order", "parent_category_id")
+	insertOnceUpdate(&achievementCategory, "name", "is_guild_category", "display_order", "parent_category_id", "horde_quantity", "horde_points", "alliance_quantity", "alliance_points")
 }
 
 func UpdateParentCategory(data *blizzard_api.ApiResponse) {
@@ -74,7 +74,7 @@ func UpdateAchievement(data *blizzard_api.ApiResponse) {
 	}
 
 	achievement.CategoryID = achievement.Category.ID
-	insertOnceUpdate(&achievement, "category_id", "name", "points", "is_account_wide", "prerequisite_achievement_id", "next_achievement_id", "display_order")
+	insertOnceUpdate(&achievement, "category_id", "name", "description", "points", "is_account_wide", "prerequisite_achievement_id", "next_achievement_id", "display_order", "reward_description", "reward_item_id")
 	achievement.Media.AchievementID = achievement.ID
 	insertOnce(achievement.Media)
 

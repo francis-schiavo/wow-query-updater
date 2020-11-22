@@ -23,7 +23,7 @@ func UpdateQuest(data *blizzard_api.ApiResponse) {
 		insertOnce(quest.Type)
 	}
 
-	if quest.Requirements.Faction != nil {
+	if quest.Requirements != nil && quest.Requirements.Faction != nil {
 		quest.Requirements.FactionID = quest.Requirements.Faction.ID
 	}
 
@@ -41,22 +41,24 @@ func UpdateQuest(data *blizzard_api.ApiResponse) {
 			questReward.TitleID = quest.Rewards.Title.ID
 		}
 		insertOnceExpr(questReward, "(quest_id) DO UPDATE", "experience", "money")
+
+		for _, reputation := range quest.Rewards.Reputations {
+			reputation.RewardID = reputation.Reward.ID
+			reputation.QuestID = quest.ID
+			insertOnceExpr(reputation, "(quest_id, reward_id) DO UPDATE", "value")
+		}
 	}
 
-	for _, reputation := range quest.Rewards.Reputations {
-		reputation.RewardID = reputation.Reward.ID
-		reputation.QuestID = quest.ID
-		insertOnceExpr(reputation, "(quest_id, reward_id) DO UPDATE", "value")
-	}
+	if quest.Requirements != nil {
+		for _, class := range quest.Requirements.Classes {
+			class.QuestID = quest.ID
+			insertOnceExpr(class, "(quest_id, playable_class_id) DO NOTHING")
+		}
 
-	for _, class := range quest.Requirements.Classes {
-		class.QuestID = quest.ID
-		insertOnceExpr(class, "(quest_id, playable_class_id) DO NOTHING")
-	}
-
-	for _, race := range quest.Requirements.Races {
-		race.QuestID = quest.ID
-		insertOnceExpr(race, "(quest_id, playable_race_id) DO NOTHING")
+		for _, race := range quest.Requirements.Races {
+			race.QuestID = quest.ID
+			insertOnceExpr(race, "(quest_id, playable_race_id) DO NOTHING")
+		}
 	}
 }
 

@@ -24,6 +24,7 @@ func main() {
 
 	connections.Connect(config.Username, config.Password, config.Database, 105, schema)
 	connections.DatabaseSetup(*classic)
+	connections.ReportingMode = false
 
 	connections.RedisClient = redis.NewClient(&redis.Options{
 		Addr:     config.RedisHost,
@@ -50,12 +51,13 @@ func main() {
 	taskManager.AddIndexTask("creature type", "CreatureTypeIndex", "creature_types", "CreatureType", updater.UpdateCreatureType)
 	taskManager.AddSearchTask("creature", "CreatureSearch", "Creature", updater.UpdateCreature)
 
-
 	taskManager.AddIndexTaskLimited("item class", "ItemClassIndex", "item_classes", "ItemClass", updater.UpdateItemClass, 50)
+	taskManager.AddSimpleTask("add missing classes", updater.InsertMissingItemClasses)
+	taskManager.AddSimpleTask("add missing stats", updater.InsertMissingStats)
 
 	// Item
 	if *classic {
-		//taskManager.AddSearchTask("item", "ItemSearch", "Item", updater.UpdateItem)
+		taskManager.AddSearchTask("item", "ItemSearch", "Item", updater.UpdateItem)
 	}
 
 	if !*classic {
@@ -66,9 +68,11 @@ func main() {
 		taskManager.AddIndexTask("reputation tier", "ReputationTierIndex", "reputation_tiers", "ReputationTier", updater.UpdateReputationTier)
 		taskManager.AddIndexTask("reputation faction", "ReputationFactionIndex", "root_factions", "ReputationFaction", updater.UpdateReputationFaction)
 		taskManager.AddIndexTask("reputation faction", "ReputationFactionIndex", "factions", "ReputationFaction", updater.UpdateParentReputation)
+		taskManager.AddSimpleTask("add missing reputation tiers", updater.InsertMissingReputationTiers)
 
 		// Spell
 		taskManager.AddSearchTask("spell", "SpellSearch", "Spell", updater.UpdateSpell)
+		taskManager.AddSimpleTask("add missing spells", updater.InsertMissingSpells)
 
 		// Items
 		taskManager.AddSearchTask("item", "ItemSearch", "Item", updater.UpdateItem)
@@ -97,25 +101,30 @@ func main() {
 		taskManager.AddMediaTask("achievement assets", &datasets.AchievementMedia{}, "AchievementMedia", updater.UpdateAchievementMedia)
 
 		// Quest
-		//taskManager.AddIndexTaskLimited("quest category", "QuestCategoryIndex", "categories", "QuestCategory", updater.UpdateQuestCategory, 50)
-		//taskManager.AddIndexTaskLimited("quest type", "QuestTypeIndex", "types", "QuestType", updater.UpdateQuestType, 50)
-		//taskManager.AddIndexTaskLimited("quest area", "QuestAreaIndex", "areas", "QuestArea", updater.UpdateQuestArea, 50)
-		//
-		//// Collections
-		//taskManager.AddIndexTask("mount", "MountIndex", "mounts", "Mount", updater.UpdateMount)
-		//taskManager.AddMediaTask("mount media", &datasets.MountDisplayMedia{}, "CreatureDisplayMedia", updater.UpdateMountDisplayMedia)
-		//taskManager.AddIndexTask("pet", "PetIndex", "pets", "Pet", updater.UpdatePet)
-		//
-		//// Profession
-		//taskManager.AddIndexTaskLimited("profession", "ProfessionIndex", "professions", "Profession", updater.UpdateProfessionTiers, 30)
-		//taskManager.AddMediaTask("profession media", &datasets.ProfessionMedia{}, "ProfessionMedia", updater.UpdateProfessionMedia)
-		//taskManager.AddMediaTask("recipe media", &datasets.RecipeMedia{}, "RecipeMedia", updater.UpdateRecipeMedia)
-		//
-		////Journal
-		//taskManager.AddIndexTask("journal expansion", "JournalExpansionIndex", "tiers", "JournalExpansion", updater.UpdateJournalExpansion)
-		//taskManager.AddIndexTask("journal instance", "JournalInstanceIndex", "instances", "JournalInstance", updater.UpdateJournalInstance)
-		//taskManager.AddIndexTask("journal encounter", "JournalEncounterIndex", "encounters", "JournalEncounter", updater.UpdateJournalEncounter)
-		//taskManager.AddMediaTask("instance media", &datasets.JournalInstanceMedia{}, "JournalInstanceMedia", updater.UpdateInstanceMedia)
+		taskManager.AddIndexTaskLimited("quest category", "QuestCategoryIndex", "categories", "QuestCategory", updater.UpdateQuestCategory, 50)
+		taskManager.AddIndexTaskLimited("quest type", "QuestTypeIndex", "types", "QuestType", updater.UpdateQuestType, 50)
+		taskManager.AddIndexTaskLimited("quest area", "QuestAreaIndex", "areas", "QuestArea", updater.UpdateQuestArea, 50)
+
+		// Collections
+		taskManager.AddIndexTask("mount", "MountIndex", "mounts", "Mount", updater.UpdateMount)
+		taskManager.AddMediaTask("mount media", &datasets.MountDisplayMedia{}, "CreatureDisplayMedia", updater.UpdateMountDisplayMedia)
+		taskManager.AddIndexTask("pet", "PetIndex", "pets", "Pet", updater.UpdatePet)
+
+		// Profession
+		taskManager.AddIndexTaskLimited("profession", "ProfessionIndex", "professions", "Profession", updater.UpdateProfessionTiers, 30)
+		taskManager.AddMediaTask("profession media", &datasets.ProfessionMedia{}, "ProfessionMedia", updater.UpdateProfessionMedia)
+		taskManager.AddMediaTask("recipe media", &datasets.RecipeMedia{}, "RecipeMedia", updater.UpdateRecipeMedia)
+
+		//Journal
+		taskManager.AddIndexTask("journal expansion", "JournalExpansionIndex", "tiers", "JournalExpansion", updater.UpdateJournalExpansion)
+		taskManager.AddIndexTask("journal instance", "JournalInstanceIndex", "instances", "JournalInstance", updater.UpdateJournalInstance)
+		taskManager.AddIndexTask("journal encounter", "JournalEncounterIndex", "encounters", "JournalEncounter", updater.UpdateJournalEncounter)
+		taskManager.AddMediaTask("instance media", &datasets.JournalInstanceMedia{}, "JournalInstanceMedia", updater.UpdateInstanceMedia)
+
+		// Covenant
+		taskManager.AddIndexTask("conduit", "ConduitIndex", "conduits", "Conduit", updater.UpdateConduit)
+		taskManager.AddIndexTask("covenant", "CovenantIndex", "covenants", "Covenant", updater.UpdateCovenant)
+		taskManager.AddIndexTask("soulbind", "SoulbindIndex", "soulbinds", "Soulbind", updater.UpdateSoulbind)
 	}
 
 	// Shared Media

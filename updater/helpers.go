@@ -2,8 +2,10 @@ package updater
 
 import (
 	"fmt"
+	"github.com/go-pg/pg/v10"
 	"log"
 	"reflect"
+	"strconv"
 	"strings"
 	"wow-query-updater/connections"
 	"wow-query-updater/datasets"
@@ -61,13 +63,46 @@ func insert(data interface{})  {
 	}
 }
 
-func handleError(err error, data interface{}) {
-	name := reflect.TypeOf(data).Elem().Name()
-	//log.Fatalf("%s: Error: %v Data: %v", name, err, data)
+func asInt(in string) int {
+	result, _ := strconv.Atoi(in)
+	return result
+}
 
+func handleError(error error, data interface{}) {
 	db := connections.GetDBConn()
-	log.Printf("%s: Error: %v Data: %v", name, err, data)
-	db.Model(&datasets.UpdateError{
-		Error: fmt.Sprintf("%v %v", err, data),
-	}).Insert()
+	name := reflect.TypeOf(data).Elem().Name()
+	log.Printf("%s: Error: %v Data: %v", name, error, data)
+	errType := reflect.TypeOf(error)
+
+	if errType == reflect.TypeOf("") {
+		db.Model(&datasets.UpdateError{
+			Endpoint: "Generic",
+			Error:    error.Error(),
+		}).Insert()
+	} else {
+		err := error.(pg.Error)
+
+		if err.Field(67) == "23503" {
+			recordID := 0
+			_, found := reflect.TypeOf(data).Elem().FieldByName("ID")
+			if found {
+				recordID = int(reflect.ValueOf(data).Elem().FieldByName("ID").Int())
+			}
+
+			db.Model(&datasets.UpdateError{
+				Endpoint: err.Field(116),
+				RecordID: recordID,
+				Error:    err.Field(68),
+			}).Insert()
+		} else if err.Field(67) == "42P10" {
+			db.Model(&datasets.UpdateError{
+				Endpoint: name,
+				Error:    fmt.Sprintf("%v %v", err, data),
+			}).Insert()
+		} else {
+			db.Model(&datasets.UpdateError{
+				Error: fmt.Sprintf("%v %v", err, data),
+			}).Insert()
+		}
+	}
 }

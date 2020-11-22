@@ -367,12 +367,13 @@ type PreviewItem struct {
 
 type ItemMedia struct {
 	Identifiable
-	ItemID int          `pg:",pk"`
+	ItemID int          ``
 	Item   *Item        `pg:"rel:has-one"`
 	Assets []ItemAssets `pg:"-"`
 }
 
 type ItemAssets struct {
-	ItemMediaID int `pg:",pk,on_delete:RESTRICT,on_update:CASCADE"`
+	ItemMediaID int        `pg:",pk"`
+	ItemMedia   *ItemMedia `pg:"rel:has-one"`
 	Asset
 }

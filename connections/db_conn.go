@@ -8,6 +8,7 @@ import (
 )
 
 var dbConn *pg.DB
+var ReportingMode bool
 
 type dbLogger struct { }
 

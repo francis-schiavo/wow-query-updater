@@ -150,11 +150,16 @@ func DatabaseSetup(classic bool) {
 		createTable(&datasets.TechTalentMedia{})
 		createTable(&datasets.TechTalentAssets{})
 
+		createTable(&datasets.SocketType{})
 		createTable(&datasets.Conduit{})
 		createTable(&datasets.ConduitRank{})
 
 		createTable(&datasets.Covenant{})
 		createTable(&datasets.CovenantAbility{})
+		createTable(&datasets.RenownReward{})
+		createTable(&datasets.CovenantRenownReward{})
+		createTable(&datasets.CovenantMedia{})
+		createTable(&datasets.CovenantAssets{})
 		createTable(&datasets.Soulbind{})
 	}
 }
