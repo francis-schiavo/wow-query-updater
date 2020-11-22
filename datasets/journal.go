@@ -26,16 +26,16 @@ type JournalEncounterSection struct {
 
 type JournalEncounter struct {
 	Identifiable
-	Name        LocalizedField   `json:"name"`
-	Description LocalizedField   `json:"description"`
-	Creatures   Identifiables    `json:"creatures" pg:"-"`
-	Items       Identifiables    `json:"items" pg:"-"`
-	Sections    Identifiables    `json:"sections" pg:"-"`
-	InstanceID  int              ``
-	Instance    *JournalInstance `json:"instance" pg:"rel:has-one"`
-	CategoryID  string           ``
-	Category    *JournalCategory `json:"category" pg:"rel:has-one"`
-	Modes       []JournalMode    `json:"modes" pg:"-"`
+	Name        LocalizedField               `json:"name"`
+	Description LocalizedField               `json:"description"`
+	Creatures   []JournalEncounterCreatures `json:"creatures" pg:"-"`
+	Items       []JournalEncounterItems     `json:"items" pg:"-"`
+	Sections    []JournalEncounterSection   `json:"sections" pg:"-"`
+	InstanceID  int                          ``
+	Instance    *JournalInstance             `json:"instance" pg:"rel:has-one"`
+	CategoryID  string                       ``
+	Category    *JournalCategory             `json:"category" pg:"rel:has-one"`
+	Modes       []JournalMode                `json:"modes" pg:"-"`
 }
 
 type JournalEncounterModes struct {

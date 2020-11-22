@@ -5,6 +5,13 @@ import (
 	"strconv"
 )
 
+type UpdateError struct {
+	ID       int
+	Endpoint string
+	RecordID int
+	Error    string
+}
+
 type LocalizedField struct {
 	EnUS string `json:"en_US"`
 	EsMX string `json:"es_MX"`
@@ -102,6 +109,26 @@ type NamedItem struct {
 }
 
 type Enum struct {
-	ID   string         `json:"type" pg:",pk,notnull,on_delete:RESTRICT,on_update:CASCADE"`
-	Name LocalizedField `json:"name"`
+	ID   string          `json:"type" pg:",pk,notnull,on_delete:RESTRICT,on_update:CASCADE"`
+	Name *LocalizedField `json:"name"`
+}
+
+type Faction Enum
+type Role Enum
+type Source Enum
+type Operator Enum
+type Currency NamedItem
+
+type SearchResultData struct {
+	Data struct{
+		ID int `json:"id"`
+	}
+}
+
+type SearchResult struct {
+	Page        int                `json:"page"`
+	PageSize    int                `json:"pageSize"`
+	MaxPageSize int                `json:"maxPageSize"`
+	PageCount   int                `json:"pageCount"`
+	Results     []SearchResultData `json:"results"`
 }

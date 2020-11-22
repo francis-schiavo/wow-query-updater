@@ -34,7 +34,7 @@ type Achievement struct {
 	IsAccountWide             bool                 `json:"is_account_wide"`
 	FactionID                 string               ``
 	Faction                   *Faction             `json:"faction" pg:"rel:has-one"`
-	Criteria                  Identifiable         `json:"criteria"`
+	Criteria                  *Criteria            `json:"criteria" pg:"-"`
 	PrerequisiteAchievementID int                  ``
 	PrerequisiteAchievement   *Achievement         `json:"prerequisite_achievement" pg:"rel:has-one"`
 	NextAchievementID         int                  ``

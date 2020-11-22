@@ -39,16 +39,16 @@ func UpdateCreature(data *blizzard_api.ApiResponse) {
 	var creature datasets.Creature
 	data.Parse(&creature)
 
-	if creature.Family.ID != 57 {
+	if creature.Family != nil && creature.Family.ID != 57 {
 		creature.FamilyID = creature.Family.ID
-		creature.TypeID = creature.Type.ID
-		insertOnceUpdate(&creature, "name", "type_id", "family_id", "is_tameable")
+	}
+	creature.TypeID = creature.Type.ID
+	insertOnceUpdate(&creature, "name", "type_id", "family_id", "is_tameable")
 
-		if creature.Media != nil {
-			for _, media := range creature.Media {
-				media.CreatureID = creature.ID
-				insertOnceUpdate(&media, "creature_id")
-			}
+	if creature.Media != nil {
+		for _, media := range creature.Media {
+			media.CreatureID = creature.ID
+			insertOnceUpdate(&media, "creature_id")
 		}
 	}
 }

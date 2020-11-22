@@ -4,19 +4,22 @@ type ProfessionType Enum
 
 type Profession struct {
 	Identifiable
-	Name        LocalizedField  `json:"name"`
-	Description LocalizedField  `json:"description"`
-	TypeID      string          ``
-	Type        *ProfessionType `json:"type" pg:"rel:has-one"`
-	SkillTiers  Identifiables   `json:"skill_tiers" pg:"-"`
+	Name        LocalizedField   `json:"name"`
+	Description LocalizedField   `json:"description"`
+	TypeID      string           ``
+	Type        *ProfessionType  `json:"type" pg:"rel:has-one"`
+	SkillTiers  Identifiables    `json:"skill_tiers" pg:"-"`
+	Media       *ProfessionMedia `json:"media" pg:"-"`
 }
 
 type ProfessionTier struct {
 	Identifiable
-	Name              LocalizedField `json:"name"`
-	MinimumSkillLevel int            `json:"minimum_skill_level"`
-	MaximumSkillLevel int            `json:"maximum_skill_level"`
-	Categories        Identifiables  `json:"categories" pg:"-"`
+	ProfessionID      int                  ``
+	Profession        *Profession          `pg:"rel:has-one"`
+	Name              LocalizedField       `json:"name"`
+	MinimumSkillLevel int                  `json:"minimum_skill_level"`
+	MaximumSkillLevel int                  `json:"maximum_skill_level"`
+	Categories        []ProfessionCategory `json:"categories" pg:"-"`
 }
 
 type ProfessionCategory struct {
@@ -24,7 +27,7 @@ type ProfessionCategory struct {
 	TierID  int             ``
 	Tier    *ProfessionTier `pg:"rel:has-one"`
 	Name    LocalizedField  `json:"name"`
-	Recipes Identifiable    `json:"recipes" pg:"-"`
+	Recipes []Recipe        `json:"recipes" pg:"-"`
 }
 
 type ProfessionTierRecipes struct {

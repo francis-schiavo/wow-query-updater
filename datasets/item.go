@@ -22,30 +22,30 @@ type Stat Enum
 type Item struct {
 	Identifiable
 	Name                    LocalizedField `json:"name"`
-	NameDescription         LocalizedDisplayString
-	Description             LocalizedField `json:"description"`
-	QualityID               string         ``
-	Quality                 *ItemQuality   `json:"quality" pg:"rel:has-one"`
-	BindingID               string         ``
-	Binding                 *Binding       `pg:"rel:has-one"`
-	Level                   int            `json:"level"`
-	LevelDisplayString      LocalizedField
+	NameDescription         *LocalizedDisplayString
+	Description             *LocalizedField `json:"description"`
+	QualityID               string          ``
+	Quality                 *ItemQuality    `json:"quality" pg:"rel:has-one"`
+	BindingID               string          ``
+	Binding                 *Binding        `pg:"rel:has-one"`
+	Level                   int             `json:"level"`
+	LevelDisplayString      *LocalizedField
 	Armor                   int
-	ArmorDisplayString      LocalizedDisplayString
+	ArmorDisplayString      *LocalizedDisplayString
 	Durability              int
-	DurabilityDisplayString LocalizedField
+	DurabilityDisplayString *LocalizedField
 	Charges                 int
-	ChargesDisplayString    LocalizedField
-	UniqueEquipped          LocalizedField
+	ChargesDisplayString    *LocalizedField
+	UniqueEquipped          *LocalizedField
 	Context                 int
 	RequiredLevel           int            `json:"required_level"`
-	ItemClassID             int            ``
+	ItemClassID             int            `pg:",use_zero"`
 	ItemClass               *ItemClass     `pg:"rel:has-one"`
-	Class                   Identifiable   `json:"item_class" pg:"-"`
-	ItemSubclassID          int            ``
-	ItemSubclassClassID     int            ``
+	Class                   *NamedItem     `json:"item_class" pg:"-"`
+	ItemSubclassID          int            `pg:",use_zero"`
+	ItemSubclassClassID     int            `pg:",use_zero"`
 	ItemSubclass            *ItemSubclass  `pg:"rel:has-one"`
-	Subclass                Identifiable   `json:"item_subclass" pg:"-"`
+	Subclass                *NamedItem     `json:"item_subclass" pg:"-"`
 	InventoryTypeID         string         ``
 	InventoryType           *InventoryType `json:"inventory_type" pg:"rel:has-one"`
 	PurchasePrice           int            `json:"purchase_price"`
@@ -87,17 +87,17 @@ type ItemLevelRequirement struct {
 type ItemRaceRequirement struct {
 	ItemID         int            `pg:",pk"`
 	Item           *Item          `pg:"rel:has-one"`
-	DisplayString  LocalizedField `json:"display_string"`
-	PlayableRaceID int            ``
+	PlayableRaceID int            `pg:",pk"`
 	PlayableRace   *PlayableRace  `pg:"rel:has-one"`
+	DisplayString  LocalizedField `json:"display_string"`
 }
 
 type ItemClassRequirement struct {
 	ItemID          int            `pg:",pk"`
 	Item            *Item          `pg:"rel:has-one"`
-	DisplayString   LocalizedField `json:"display_string"`
-	PlayableClassID int            ``
+	PlayableClassID int            `pg:",pk"`
 	PlayableClass   *PlayableClass `pg:"rel:has-one"`
+	DisplayString   LocalizedField `json:"display_string"`
 }
 
 type ItemSpecializationRequirement struct {

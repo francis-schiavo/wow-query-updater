@@ -40,11 +40,13 @@ func updateCategory(category datasets.ProfessionCategory) {
 	}
 }
 
-func updateSkillTier(data *blizzard_api.ApiResponse, categories bool) {
+func updateSkillTier(profession datasets.Profession, data *blizzard_api.ApiResponse, categories bool) {
 	var skillTier datasets.ProfessionTier
 	data.Parse(&skillTier)
 
-	insertOnceUpdate(&skillTier, "name", "minimum_skill_level", "maximum_skill_level")
+	skillTier.ProfessionID = profession.ID
+
+	insertOnceUpdate(&skillTier, "profession_id", "name", "minimum_skill_level", "maximum_skill_level")
 
 	if categories {
 		for _, category := range skillTier.Categories {
@@ -66,7 +68,7 @@ func UpdateProfession(data *blizzard_api.ApiResponse) {
 	if profession.SkillTiers != nil {
 		for _, tier := range profession.SkillTiers {
 			tierResponse := connections.WowClient.ProfessionSkillTier(profession.ID, tier.ID, nil)
-			updateSkillTier(tierResponse, false)
+			updateSkillTier(profession, tierResponse, false)
 		}
 	}
 
@@ -83,7 +85,7 @@ func UpdateProfessionTiers(data *blizzard_api.ApiResponse) {
 	if profession.SkillTiers != nil {
 		for _, tier := range profession.SkillTiers {
 			tierResponse := connections.WowClient.ProfessionSkillTier(profession.ID, tier.ID, nil)
-			updateSkillTier(tierResponse, true)
+			updateSkillTier(profession, tierResponse, true)
 		}
 	}
 }

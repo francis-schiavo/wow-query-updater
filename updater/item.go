@@ -24,6 +24,63 @@ func UpdateItemClass(data *blizzard_api.ApiResponse) {
 	}
 }
 
+func updateItemProfessionRequirement(item *datasets.Item) {
+	p_id := 0
+	p_t_id := 0
+
+	profession := &datasets.Profession{
+		Identifiable: datasets.Identifiable{
+			ID: item.PreviewItem.Requirements.Skill.Profession.GetID(),
+		},
+	}
+	err := connections.GetDBConn().Model(profession).WherePK().Select()
+	if err != nil {
+		connections.GetDBConn().Model(&datasets.UpdateError{
+			Endpoint: "Item profession requirement",
+			RecordID: item.ID,
+			Error:    fmt.Sprintf("Item %d: references unknown profession %d.", item.ID, profession.ID),
+		}).Insert()
+	} else {
+		p_id = profession.ID
+	}
+
+	if p_id == 0 {
+		professionTier := &datasets.ProfessionTier{
+			Identifiable: datasets.Identifiable{
+				ID: item.PreviewItem.Requirements.Skill.Profession.GetID(),
+			},
+		}
+		err2 := connections.GetDBConn().Model(professionTier).WherePK().Select()
+		if err2 != nil {
+			connections.GetDBConn().Model(&datasets.UpdateError{
+				Endpoint: "Item profession requirement",
+				RecordID: item.ID,
+				Error:    fmt.Sprintf("Item %d: references skill-tier %d not found.", item.ID, professionTier.ID),
+			}).Insert()
+		} else {
+			p_id = professionTier.ProfessionID
+			p_t_id = professionTier.ID
+		}
+	}
+
+	if profession.ID > 0 {
+		skill := datasets.ItemSkillRequirement{
+			ItemID:           item.ID,
+			ProfessionID:     p_id,
+			ProfessionTierID: p_t_id,
+			DisplayString:    item.PreviewItem.Requirements.Skill.DisplayString,
+			Level:            item.PreviewItem.Requirements.Skill.Level,
+		}
+		insertOnceExpr(&skill, "(item_id) DO UPDATE", "profession_id", "profession_tier_id", "display_string", "level")
+	} else {
+		connections.GetDBConn().Model(&datasets.UpdateError{
+			Endpoint: "Item profession requirement",
+			RecordID: item.ID,
+			Error:    fmt.Sprintf("Item %d: references invalid profession or skill-tier %d.", item.ID, item.PreviewItem.Requirements.Skill.Profession.GetID()),
+		}).Insert()
+	}
+}
+
 func UpdateItem(data *blizzard_api.ApiResponse) {
 	var item datasets.Item
 	data.Parse(&item)
@@ -50,6 +107,7 @@ func UpdateItem(data *blizzard_api.ApiResponse) {
 		}, "(id,class_id) DO NOTHING")
 	}
 	item.ItemClassID = item.Class.ID
+	item.ItemSubclassClassID = item.Class.ID
 	item.ItemSubclassID = item.Subclass.ID
 
 	if item.PreviewItem.Binding != nil {
@@ -147,62 +205,17 @@ func UpdateItem(data *blizzard_api.ApiResponse) {
 	}
 
 	if item.PreviewItem.Requirements.Skill != nil {
-		skill := &datasets.ItemSkillRequirement{
-			ItemID:        item.ID,
-			DisplayString: item.PreviewItem.Requirements.Skill.DisplayString,
-		}
-
-		profession := &datasets.Profession{
-			Identifiable: datasets.Identifiable{ID: item.PreviewItem.Requirements.Skill.Profession.ID},
-		}
-
-		var err2 error
-
-		err := connections.GetDBConn().Select(profession)
-		if err == nil {
-			skill.ProfessionID = item.PreviewItem.Requirements.Skill.Profession.ID
-		} else {
-			professionTier := &datasets.ProfessionTier{
-				Identifiable: datasets.Identifiable{ID: item.PreviewItem.Requirements.Skill.Profession.ID},
-			}
-			err2 = connections.GetDBConn().Select(professionTier)
-			if err2 == nil {
-				skill.ProfessionTierID = item.PreviewItem.Requirements.Skill.Profession.ID
-			} else {
-				db := connections.GetDBConn()
-				db.Model(&datasets.UpdateError{
-					Endpoint: "Item Skill",
-					RecordID: item.ID,
-					Error:    fmt.Sprintf("Profession not found: %d - %s", item.PreviewItem.Requirements.Skill.Profession.ID, item.PreviewItem.Requirements.Skill.DisplayString.EnUS),
-				}).Insert()
-			}
-		}
-
-		if err == nil || err2 == nil {
-			insertOnceExpr(skill,
-				"(item_id) DO UPDATE",
-				"profession_id", "display_string")
-		}
+		updateItemProfessionRequirement(&item)
 	}
 
 	if item.PreviewItem.Requirements.Ability != nil {
-		spell := connections.WowClient.Spell(item.PreviewItem.Requirements.Ability.Spell.ID, nil)
-		if !UpdateSpell(spell) {
-			db := connections.GetDBConn()
-			db.Model(&datasets.UpdateError{
-				Endpoint: "Item Spell",
-				RecordID: item.ID,
-				Error:    fmt.Sprintf("Spell %d not found.", item.PreviewItem.Requirements.Ability.Spell.ID),
-			}).Insert()
-		} else {
-			insertOnceExpr(&datasets.ItemAbilityRequirement{
-				ItemID:        item.ID,
-				SpellID:       item.PreviewItem.Requirements.Ability.Spell.ID,
-				DisplayString: item.PreviewItem.Requirements.Ability.DisplayString,
-			},
-				"(item_id) DO UPDATE",
-				"spell_id", "display_string")
-		}
+		insertOnceExpr(&datasets.ItemAbilityRequirement{
+			ItemID:        item.ID,
+			SpellID:       item.PreviewItem.Requirements.Ability.Spell.ID,
+			DisplayString: item.PreviewItem.Requirements.Ability.DisplayString,
+		},
+		"(item_id) DO UPDATE",
+		"spell_id", "display_string")
 	}
 
 	if item.PreviewItem.Requirements.Level != nil {

@@ -25,13 +25,13 @@ type CreatureType NamedItem
 
 type Creature struct {
 	Identifiable
-	Name       LocalizedField  `json:"name"`
-	TypeID     int             ``
-	Type       *CreatureType   `json:"type" pg:"rel:has-one"`
-	FamilyID   int             ``
-	Family     *CreatureFamily `json:"family" pg:"rel:has-one"`
-	Media      Identifiables   `json:"creature_displays" pg:"-"`
-	IsTameable bool            `json:"is_tameable"`
+	Name       LocalizedField         `json:"name"`
+	TypeID     int                    ``
+	Type       *CreatureType          `json:"type" pg:"rel:has-one"`
+	FamilyID   int                    ``
+	Family     *CreatureFamily        `json:"family" pg:"rel:has-one"`
+	Media      []CreatureDisplayMedia `json:"creature_displays" pg:"-"`
+	IsTameable bool                   `json:"is_tameable"`
 }
 
 type CreatureDisplayMedia struct {

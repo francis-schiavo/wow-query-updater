@@ -65,7 +65,7 @@ func (task *Task) log(logType LogType, message string, args ...interface{}) {
 }
 
 func (task *Task) resume() {
-	time.Sleep(60 * time.Minute) // Wait for an hour
+	time.Sleep(5 * time.Minute) // Wait for an hour
 	task.log(LT_DEBUG, "RESUMING ALL WORKERS\n")
 	task.suspended = false
 	task.waitCond.Broadcast()

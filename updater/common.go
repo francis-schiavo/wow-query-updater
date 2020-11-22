@@ -64,18 +64,17 @@ func UpdatePlayableSpecializationMedia(data *blizzard_api.ApiResponse, id int) {
 	}
 }
 
-func UpdateSpell(data *blizzard_api.ApiResponse) bool {
+func UpdateSpell(data *blizzard_api.ApiResponse) {
 	var spell datasets.Spell
 	data.Parse(&spell)
 
 	if spell.ID == 0 {
-		return false
+		return
 	}
 
 	insertOnceUpdate(&spell, "name", "description")
 	spell.Media.SpellID = spell.ID
 	insertOnceUpdate(spell.Media, "spell_id")
-	return true
 }
 
 func UpdateSpellMedia(data *blizzard_api.ApiResponse, id int) {

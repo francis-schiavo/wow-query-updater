@@ -95,7 +95,8 @@ type QuestReward struct {
 	Spell             *Spell                   `json:"spell" pg:"rel:has-one"`
 	TradeSkillSpellID int                      ``
 	TradeSkillSpell   *Spell                   `json:"trade_skill_spell" pg:"rel:has-one"`
-	Title             Identifiable             `json:"title"`
+	TitleID           int                      ``
+	Title             *Title                   `json:"title" pg:"rel:has-one"`
 	Reputations       []*QuestReputationReward `json:"reputations" pg:"-"`
 	Money             int
 	MoneyObj          struct {
@@ -134,14 +135,14 @@ type QuestReward struct {
 type QuestClassRequirement struct {
 	QuestID         int            `pg:",pk"`
 	Quest           *Quest         `pg:"rel:has-one"`
-	PlayableClassID int            `pg:",pk"`
+	PlayableClassID int            `json:"id" pg:",pk"`
 	PlayableClass   *PlayableClass `pg:"rel:has-one"`
 }
 
 type QuestRaceRequirement struct {
 	QuestID        int           `pg:",pk"`
 	Quest          *Quest        `pg:"rel:has-one"`
-	PlayableRaceID int           `pg:",pk"`
+	PlayableRaceID int           `json:"id" pg:",pk"`
 	PlayableRace   *PlayableRace `pg:"rel:has-one"`
 }
 
@@ -160,9 +161,9 @@ type QuestRequirement struct {
 	MaxCharacterLevel int                           `json:"max_character_level"`
 	FactionID         string                        ``
 	Faction           *Faction                      `json:"faction" pg:"rel:has-one"`
-	Classes           Identifiables                 `json:"classes" pg:"-"`
+	Classes           []*QuestClassRequirement      `json:"classes" pg:"-"`
 	Reputations       []*QuestReputationRequirement `json:"reputations" pg:"-"`
-	Races             Identifiables                 `json:"races"`
+	Races             []*QuestRaceRequirement       `json:"races"  pg:"-"`
 }
 
 // TODO: Previous quest requirements

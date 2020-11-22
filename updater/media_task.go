@@ -25,14 +25,14 @@ func (task *MediaTask) worker(workerId int) {
 			reflect.ValueOf(id),
 			reflect.ValueOf((*blizzard_api.RequestOptions)(nil)),
 		}
-		task.log(LT_DEBUG, "[Worker %d] Processing item %d\n", workerId, id)
+		task.log(LT_DEBUG, "[Worker %d] Processing %s %d\n", workerId, task.Name, id)
 
 		response := endpointInterface.Call(args)[0].Interface().(*blizzard_api.ApiResponse)
 		if !response.Cached {
 			task.rateLimiter <- 1
 		}
 
-		task.log(LT_DEBUG, "[Worker %d] Finished processing item %d\n", workerId, id)
+		task.log(LT_DEBUG, "[Worker %d] Finished processing %s %d\n", workerId, task.Name, id)
 		if response.Status == 200 {
 			task.MediaCallback(response, id)
 			task.log(LT_INFO, "Updated %s %d successfully!\n", task.Name, id)

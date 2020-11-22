@@ -3,9 +3,11 @@ package updater
 import (
 	"fmt"
 	blizzard_api "github.com/francis-schiavo/blizzard-api-go"
+	"log"
 	"reflect"
 	"sync"
 	"wow-query-updater/connections"
+	"wow-query-updater/datasets"
 )
 
 type SearchTask struct {
@@ -23,14 +25,14 @@ func (task *SearchTask) worker(workerId int) {
 			reflect.ValueOf(id),
 			reflect.ValueOf((*blizzard_api.RequestOptions)(nil)),
 		}
-		task.log(LT_DEBUG, "[Worker %d] Processing item %d\n", workerId, id)
+		task.log(LT_DEBUG, "[Worker %d] Processing %s %d\n", workerId, task.Name, id)
 
 		response := endpointInterface.Call(args)[0].Interface().(*blizzard_api.ApiResponse)
 		if !response.Cached {
 			task.rateLimiter <- 1
 		}
 
-		task.log(LT_DEBUG, "[Worker %d] Finished processing item %d\n", workerId, id)
+		task.log(LT_DEBUG, "[Worker %d] Finished processing %s %d\n", workerId, task.Name, id)
 		if response.Status == 200 {
 			task.ItemCallback(response)
 			task.log(LT_INFO, "Updated %s %d successfully!\n", task.Name, id)
@@ -74,7 +76,7 @@ func (task *SearchTask) Run() {
 	task.rateLimiter = make(chan int, task.concurrency-1)
 	go task.rateLimitWorker()
 
-	var jsonData map[string]interface{}
+	var jsonData datasets.SearchResult
 	lastID := 0
 	for {
 		args := []reflect.Value{
@@ -82,26 +84,26 @@ func (task *SearchTask) Run() {
 				QueryString: map[string]string {
 					"orderby": "id",
 					"id": fmt.Sprintf("[%d,]", lastID + 1),
+					"_pageSize": "1000",
 				},
 			}),
 		}
 		response := endpointInterface.Call(args)[0].Interface().(*blizzard_api.ApiResponse)
 
 		if response.Status != 200 {
-			task.log(LT_ERROR, "Failed to obtain search data with status: %d.\n", response.Status)
-			return
+			log.Fatalf("Failed to obtain search data with status: %d.\n", response.Status)
 		}
 
 		response.Parse(&jsonData)
 
-		if len(jsonData) == 0 {
+		if len(jsonData.Results) == 0 {
 			fmt.Sprintln("No more data")
 			break
 		}
 
-		for _, item := range jsonData["results"].([]interface{}) {
+		for _, item := range jsonData.Results {
 			task.waitGroup.Add(1)
-			lastID = int(item.(map[string]interface{})["data"].(map[string]interface{})["id"].(float64))
+			lastID = item.Data.ID
 			task.queue <- lastID
 		}
 	}
