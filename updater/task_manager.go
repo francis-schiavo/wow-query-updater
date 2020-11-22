@@ -113,6 +113,14 @@ func (manager *TaskManager) AddRangeTask(name string, rangeStart int, rangeEnd i
 	manager.taskList = append(manager.taskList, task)
 }
 
+func (manager *TaskManager) AddSimpleTask(name string, method SimpleMethod) {
+	task := &SimpleTask{
+		Name:   name,
+		Method: method,
+	}
+	manager.taskList = append(manager.taskList, task)
+}
+
 func (manager *TaskManager) LogMonitor() {
 	for log := range manager.logChannel {
 		if log.LogType >= manager.LogLevel {

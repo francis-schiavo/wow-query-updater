@@ -3,19 +3,19 @@ package datasets
 type QuestType struct {
 	Identifiable
 	Type   LocalizedField `json:"type"`
-	Quests Identifiables  `json:"quests"`
+	Quests Identifiables  `json:"quests" pg:"-"`
 }
 
 type QuestArea struct {
 	Identifiable
 	Area   LocalizedField `json:"area"`
-	Quests Identifiables  `json:"quests"`
+	Quests Identifiables  `json:"quests" pg:"-"`
 }
 
 type QuestCategory struct {
 	Identifiable
 	Category LocalizedField `json:"category"`
-	Quests   Identifiables  `json:"quests"`
+	Quests   Identifiables  `json:"quests" pg:"-"`
 }
 
 type Quest struct {

@@ -64,28 +64,6 @@ func UpdatePlayableSpecializationMedia(data *blizzard_api.ApiResponse, id int) {
 	}
 }
 
-func UpdateSpell(data *blizzard_api.ApiResponse) {
-	var spell datasets.Spell
-	data.Parse(&spell)
-
-	if spell.ID == 0 {
-		return
-	}
-
-	insertOnceUpdate(&spell, "name", "description")
-	spell.Media.SpellID = spell.ID
-	insertOnceUpdate(spell.Media, "spell_id")
-}
-
-func UpdateSpellMedia(data *blizzard_api.ApiResponse, id int) {
-	var spell datasets.SpellMedia
-	data.Parse(&spell)
-	for _, asset := range spell.Assets {
-		asset.SpellMediaID = spell.ID
-		insertOnceExpr(&asset, "(spell_media_id,key) DO UPDATE", "value")
-	}
-}
-
 func UpdateTalent(data *blizzard_api.ApiResponse) {
 	var talent datasets.Talent
 	data.Parse(&talent)

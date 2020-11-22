@@ -16,7 +16,7 @@ type CreatureFamilyMedia struct {
 }
 
 type CreatureFamilyAssets struct {
-	CreatureFamilyMediaID int                  ``
+	CreatureFamilyMediaID int                  `pg:",pk"`
 	CreatureFamilyMedia   *CreatureFamilyMedia `pg:"rel:has-one"`
 	Asset
 }
@@ -42,7 +42,7 @@ type CreatureDisplayMedia struct {
 }
 
 type CreatureDisplayAssets struct {
-	CreatureDisplayMediaID int                   ``
+	CreatureDisplayMediaID int                   `pg:",pk"`
 	CreatureDisplayMedia   *CreatureDisplayMedia `pg:"rel:has-one"`
 	Asset
 }
