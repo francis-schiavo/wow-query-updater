@@ -13,9 +13,9 @@ type Conduit struct {
 	Identifiable
 	Name         LocalizedField `json:"name"`
 	ItemID       int            ``
-	Item         *Item          `json:"item" pg:"rel:has-one"`
+	Item         *Item          `json:"item" pg:"-"`
 	SocketTypeID string         ``
-	SocketType   *SocketType    `json:"socket_type" pg:"rel:has-one"`
+	SocketType   *SocketType    `json:"socket_type" pg:"-"`
 	Ranks        []*ConduitRank `json:"ranks"`
 }
 
