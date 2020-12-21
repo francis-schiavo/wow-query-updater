@@ -3,7 +3,7 @@ package datasets
 type SocketType Enum
 
 type ConduitRank struct {
-	Identifiables
+	Identifiable
 	Tier           int           `json:"tier"`
 	SpellTooltipID int           ``
 	SpellTooltip   *SpellTooltip `json:"spell_tooltip" pg:"rel:has-one"`
