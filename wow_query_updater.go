@@ -124,6 +124,9 @@ func main() {
 		// Covenant
 		taskManager.AddIndexTask("conduit", "ConduitIndex", "conduits", "Conduit", updater.UpdateConduit)
 		taskManager.AddIndexTask("covenant", "CovenantIndex", "covenants", "Covenant", updater.UpdateCovenant)
+		taskManager.AddIndexTask("tech-talent-tree", "TechTalentTreeIndex", "talent_trees", "TechTalentTree", updater.UpdateTechTalentsTrees)
+		taskManager.AddIndexTask("tech-talent", "TechTalentIndex", "talents", "TechTalent", updater.UpdateTechTalents)
+		// not working yet -- taskManager.AddMediaTask("tech-talent media", &datasets.TechTalentMedia{}, "TechTalentMedia", updater.UpdateTechTalentMedia)
 		taskManager.AddIndexTask("soulbind", "SoulbindIndex", "soulbinds", "Soulbind", updater.UpdateSoulbind)
 	}
 
