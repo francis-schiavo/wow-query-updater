@@ -2,13 +2,14 @@ package datasets
 
 type TechTalent struct {
 	Identifiable
-	TalentTree         *TechTalentTree `json:"talent_tree" pg:"rel:has-one"`
-	Name               LocalizedField  `json:"name"`
-	Description        LocalizedField  `json:"description"`
-	SpellTooltip       *SpellTooltip   `json:"spell_tooltip"`
-	Tier               int             `json:"tier"`
-	DisplayOrder       int             `json:"display_order"`
-	PrerequisiteTalent *TechTalent     `json:"prerequisite_talent" pg:"rel:has-one"`
+	TalentTreeID         int             ``
+	TalentTree           *TechTalentTree `json:"talent_tree" pg:"rel:has-one"`
+	Name                 LocalizedField  `json:"name"`
+	Description          LocalizedField  `json:"description"`
+	SpellTooltip         *SpellTooltip   `json:"spell_tooltip"`
+	Tier                 int             `json:"tier" pg:",use_zero"`
+	DisplayOrder         int             `json:"display_order" pg:",use_zero"`
+	PrerequisiteTalent   *TechTalent     `json:"prerequisite_talent"`
 }
 
 type TechTalentTree struct {
@@ -19,12 +20,13 @@ type TechTalentTree struct {
 
 type TechTalentMedia struct {
 	Identifiable
-	ItemID int           `pg:",pk"`
-	Item   *Item         `pg:"rel:has-one"`
-	Assets Identifiables `pg:"-"`
+	TechTalentID int          ``
+	TechTalent *TechTalent    `pg:"rel:has-one"`
+	Assets []TechTalentAssets `pg:"-"`
 }
 
 type TechTalentAssets struct {
-	TechTalentMediaID int `pg:",pk,on_delete:RESTRICT,on_update:CASCADE"`
+	TechTalentMediaID int              `pg:",pk,on_delete:RESTRICT,on_update:CASCADE"`
+	TechTalentMedia   *TechTalentMedia `pg:"rel:has-one"`
 	Asset
 }
