@@ -1,0 +1,11 @@
+{
+  "client_id": "api_client_id",
+  "client_secret": "api_client_secret",
+
+  "username": "postgres_username",
+  "password": "postgres_password",
+  "database": "postgres_database",
+
+  "redis_host": "localhost:6379",
+  "redis_db": 12
+}
